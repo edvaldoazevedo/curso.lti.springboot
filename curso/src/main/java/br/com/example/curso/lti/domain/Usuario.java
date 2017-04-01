@@ -12,7 +12,7 @@ public class Usuario implements Serializable {
 	public Usuario() {
 		
 	}
-
+	private int id;
 	private String nome;
 	private String cpf;
 	
@@ -31,6 +31,14 @@ public class Usuario implements Serializable {
 
 	public void setCpf(String cpf) {
 		this.cpf = cpf;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 }
