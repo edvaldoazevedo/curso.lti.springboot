@@ -1,8 +1,8 @@
 package br.com.example.curso.lti.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,19 +12,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.example.curso.lti.domain.Usuario;
+import br.com.example.curso.lti.service.UsuarioService;
 
 @RestController
 @RequestMapping(value="/usuario")
 public class UsuarioController {
 	
-	ArrayList<Usuario> usuarios = new ArrayList<Usuario>();
+	@Autowired
+	private UsuarioService usuService;
 	
 	@RequestMapping(method=RequestMethod.POST)
 	public ResponseEntity<String> criarUsuario(@RequestBody Usuario usu){
 		try {
-			usuarios.add(usu);
-			System.out.println(usu.getNome());
-			
+			usuService.salvarUsuario(usu);
 			return new ResponseEntity<String>(HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -34,6 +34,7 @@ public class UsuarioController {
 	@RequestMapping(method=RequestMethod.GET)
 	public ResponseEntity<List<Usuario>> buscarUsuarios(){
 		
+		List<Usuario> usuarios = usuService.buscarUsuarios();
 		return new ResponseEntity<List<Usuario>>(usuarios,HttpStatus.OK);
 		
 	}
@@ -41,27 +42,20 @@ public class UsuarioController {
 	@RequestMapping(value="/{id}", method=RequestMethod.GET)
 	public ResponseEntity<Usuario>buscarUsuarioPorId(@PathVariable int id){
 		
-		Usuario usuario1 =  new Usuario();
-		for (Usuario usuario : usuarios) {
-			if(usuario.getId() == id){
-				usuario1 = usuario;
-			}
-		}
-		return new ResponseEntity<Usuario>(usuario1,HttpStatus.OK);
+		Usuario usuario=  usuService.buscarUsuario(id);
+		return new ResponseEntity<Usuario>(usuario,HttpStatus.OK);
 	}
 	
 	@RequestMapping(value="/{id}", method=RequestMethod.DELETE)
-	public ResponseEntity<Usuario>removerUsuarioPorId(@PathVariable int id){
+	public ResponseEntity<String>removerUsuarioPorId(@PathVariable Usuario usuario){
 		
-		Usuario usuario1 =  new Usuario();
-		for (Usuario usuario : usuarios) {
-			if(usuario.getId() == id){
-				usuario1 = usuario;
-				usuarios.remove(usuario);
-			}
+		try {
+			usuService.removerUsuario(usuario);
+			return new ResponseEntity<String>(HttpStatus.OK);
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
-		System.out.println("O usuário "+" "+usuario1.getNome()+" "+ "foi removido");
-		return new ResponseEntity<Usuario>(usuario1,HttpStatus.OK);
+		return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	
 	
